@@ -127,3 +127,44 @@ if (wallsMatrix(cell,4) == 0 && wallsMatrix(cell,1) == 0)
 end
 end
 
+
+function W = GenerateWallsMatrix(mazeSize, walls)
+M = mazeSize(1);
+N = mazeSize(2);
+K = size(walls,2)/2;
+W = zeros(M*N,4);
+for i = 1:M
+    W(i,3) = 1;          % left wall
+    W(M*(N-1)+i,1) = 1;   % right wall
+end
+for i = 1:N
+    W(M*(i-1)+M,2) = 1;
+    W(M*(i-1)+1,4) = 1;
+end
+for i = 1:K
+    a = walls(:,2*i) - walls(:,2*i - 1);
+    if a(1) < 0              % horizontal wall: oriented from right to left
+        n = walls(1,2*i-1);
+        m = walls(2,2*i-1);
+        W(M*(n-1)+m,2) = 1;         % looking at cell below the wall
+        W(M*(n-1)+m+1,4) = 1;       % looking at cell above the wall
+    elseif a(1) > 0          % horizontal wall: oriented from left to right
+        n = walls(1,2*i);
+        m = walls(2,2*i);
+        W(M*(n-1)+m,2) = 1;         % looking at cell below the wall
+        W(M*(n-1)+m+1,4) = 1;       % looking at cell above the wall
+    elseif a(2) < 0          % vertical wall: oriented  from top to bottom
+        n = walls(1,2*i-1);
+        m = walls(2,2*i-1);
+        W(M*(n-1)+m,1) = 1;      % looking at cell on the left of the wall
+        W(M*(n)+m,3) = 1;          % looking at cell on the right of the wall
+    elseif a(2) > 0          % vertical wall: oriented  from bottom to top
+        n = walls(1,2*i);
+        m = walls(2,2*i);
+        W(M*(n-1)+m,1) = 1;      % looking at cell on the left of the wall
+        W(M*(n)+m,3) = 1;          % looking at cell on the right of the wall
+    else
+        disp('NEE-NOO-NEE-NOO-NEE-NOO - error: zero length wall found! NEE-NOO-NEE-NOO-NEE-NOO')
+    end
+end
+end
