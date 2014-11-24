@@ -45,26 +45,60 @@ function G = ComputeStageCostsI( stateSpace, controlSpace, disturbanceSpace, maz
 %           G(i, l) represents the cost if we are in state i and apply
 %           control input l.
 
+%inizialize some useful dimension
 MN = size(stateSpace,1);
+M = mazeSize(1);
 L = size(controlSpace,1);
 G = Inf(MN,L);
+%create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 for cell = 1:MN
-    controls = availableControls(cell,wallsMatrix);
-    for i = 1:size(controls)
+    %check all AVALIAIBLE CONTROLS
+    controls = availableControls(cell,wallsMatrix,M);
+    for i = 1:size(controls,2)
         G(cell,controls(i)) = 1;
     end
 end
-G((tagetCell(2)-1)*m +tagetCell(1),:) = zeros(1,L);
+%if cell is target the cost of all controls is 0
+G((targetCell(2)-1)*M +targetCell(1),:) = zeros(1,L);
 end
 
 %% FUNCTION TO FIND AVAILABLE CONTROLS FOR ONE SPECIFIC CELL
-function controls = availableControls(cell,wallsMatrix)
+%   Input arguments:
+%
+%       cell:
+%           An integer containing the index of the cell that we are 
+%           analyzing
+%
+%   	wallsMatrix:
+%          	A (MN x 4) matrix containing, foreach cell, 4 boolean values 
+%          that express foreach wall of the cell if it is active or not, 
+%          in particular:
+%               1 if the wall exists, 
+%               0 otherwhise
+%          each value referes to a specific wall of the cell, they follow 
+%          this order: 
+%                        [RIGHT,UP,LEFT,BOTTOM]
+%
+%       M:
+%           An integer containing the number of rows of the maze
+%
+%   Output arguments:
+%
+%       controls: 
+%          A (C x 1) vector containing all the indexes of the avilable
+%          controls for the specificated cell, according to the position of
+%          the walls. 
+%          The indexes of the controls refere to the control space buildt
+%          with the  function ScriptI
+%
+
+function controls = availableControls(cell,wallsMatrix,M)
 controls = 7;
 %RIGHT CONTROLS
 if (wallsMatrix(cell,1) == 0)
    controls = [controls, 11];
-   cellRight = cell + m; 
+   cellRight = cell + M; 
    if(wallsMatrix(cellRight,1) == 0)
       controls = [controls, 13]; 
    end
@@ -80,7 +114,7 @@ end
 %LEFT CONTROLS
 if (wallsMatrix(cell,3) == 0)
    controls = [controls, 3];
-   cellLeft = cell + m; 
+   cellLeft = cell - M; 
    if(wallsMatrix(cellLeft,3) == 0)
       controls = [controls, 1]; 
    end
@@ -95,7 +129,7 @@ if (wallsMatrix(cell,4) == 0)
 end
 %DIAGONALS CONTROLS RIGHT-UP
 if (wallsMatrix(cell,1) == 0 && wallsMatrix(cell,2) == 0)
-   cellRight = cell + m;
+   cellRight = cell + M;
    cellUp = cell + 1;
    if(wallsMatrix(cellRight,2) == 0 && wallsMatrix(cellUp,1) == 0)
       controls = [controls, 12]; 
@@ -104,14 +138,14 @@ end
 %DIAGONALS CONTROLS UP-LEFT
 if (wallsMatrix(cell,2) == 0 && wallsMatrix(cell,3) == 0)
    cellUp = cell + 1;
-   cellLeft = cell - m;
+   cellLeft = cell - M;
    if(wallsMatrix(cellUp,3) == 0 && wallsMatrix(cellLeft,2) == 0)
       controls = [controls, 4]; 
    end
 end
 %DIAGONALS CONTROLS LEFT-BOTTOM
 if (wallsMatrix(cell,3) == 0 && wallsMatrix(cell,4) == 0)
-   cellLeft = cell - m;
+   cellLeft = cell - M;
    cellBottom = cell - 1;
    if(wallsMatrix(cellLeft,4) == 0 && wallsMatrix(cellBottom,3) == 0)
       controls = [controls, 2]; 
@@ -120,13 +154,36 @@ end
 %DIAGONALS CONTROLS BOTTOM-RIGHT
 if (wallsMatrix(cell,4) == 0 && wallsMatrix(cell,1) == 0)
    cellBottom = cell - 1;
-   cellRight = cell + m;
+   cellRight = cell + M;
    if(wallsMatrix(cellBottom,1) == 0 && wallsMatrix(cellRight,4) == 0)
       controls = [controls, 10]; 
    end
 end
 end
 
+%% FUNCTION TO FIND THE ATTIVATE WALLS FOR EACH CELL
+%   Input arguments:
+%
+%       mazeSize:
+%           A (1 x 2) matrix containing the width and the height of the
+%           maze in number of cells.
+%
+%   	walls:
+%          	A (2 x 2K) matrix containing the K wall segments, where the start
+%        	and end point of the k-th segment are stored in column 2k-1
+%         	and 2k, respectively.
+%
+%   Output arguments:
+%
+%       W: 
+%          A (MN x 4) matrix containing, foreach cell, 4 boolean values 
+%          that express foreach wall of the cell if it is active or not, 
+%          in particular:
+%               1 if the wall exists, 
+%               0 otherwhise
+%          each value referes to a specific wall of the cell, they follow 
+%          this order: 
+%                        [RIGHT,UP,LEFT,BOTTOM]
 
 function W = GenerateWallsMatrix(mazeSize, walls)
 M = mazeSize(1);
