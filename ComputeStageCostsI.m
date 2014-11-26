@@ -53,25 +53,25 @@ G = Inf(MN,L);
 %create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 for cell = 1:MN
-    %check all AVALIAIBLE CONTROLS
-    controls = availableControls(cell,wallsMatrix,M);
+    %check all APPLICABLE CONTROLS
+    controls = applicableControls(cell,wallsMatrix,M);
     for i = 1:size(controls,2)
         G(cell,controls(i)) = 1;
     end
 end
 %if cell is target the cost of all controls is 0
-G((targetCell(2)-1)*M +targetCell(1),:) = zeros(1,L);
+G((targetCell(1)-1)*M +targetCell(2),:) = zeros(1,L);
 end
 
-%% FUNCTION TO FIND AVAILABLE CONTROLS FOR ONE SPECIFIC CELL
+%% FUNCTION TO FIND APPLICABLE CONTROLS FOR ONE SPECIFIC CELL
 %   Input arguments:
 %
 %       cell:
 %           An integer containing the index of the cell that we are 
 %           analyzing
 %
-%   	wallsMatrix:
-%          	A (MN x 4) matrix containing, foreach cell, 4 boolean values 
+%     wallsMatrix:
+%           A (MN x 4) matrix containing, foreach cell, 4 boolean values 
 %          that express foreach wall of the cell if it is active or not, 
 %          in particular:
 %               1 if the wall exists, 
@@ -93,36 +93,41 @@ end
 %          with the  function ScriptI
 %
 
-function controls = availableControls(cell,wallsMatrix,M)
+function controls = applicableControls(cell,wallsMatrix,M)
+%STAY control
 controls = 7;
 %RIGHT CONTROLS
 if (wallsMatrix(cell,1) == 0)
    controls = [controls, 11];
-   cellRight = cell + M; 
+   cellRight = cell + M;
+   %2RIGHT
    if(wallsMatrix(cellRight,1) == 0)
-      controls = [controls, 13]; 
+      controls = [controls, 13];
    end
 end
 %UP CONTROLS
 if (wallsMatrix(cell,2) == 0)
    controls = [controls, 8];
-   cellUp = cell + 1; 
+   cellUp = cell + 1;
+   %2UP
    if(wallsMatrix(cellUp,2) == 0)
-      controls = [controls, 9]; 
+      controls = [controls, 9];
    end
 end
 %LEFT CONTROLS
 if (wallsMatrix(cell,3) == 0)
    controls = [controls, 3];
-   cellLeft = cell - M; 
+   cellLeft = cell - M;
+   %2LEFT
    if(wallsMatrix(cellLeft,3) == 0)
-      controls = [controls, 1]; 
+      controls = [controls, 1];
    end
 end
 %BOTTOM CONTROLS
 if (wallsMatrix(cell,4) == 0)
    controls = [controls, 6];
-   cellBottom = cell - 1; 
+   cellBottom = cell - 1;
+   %2BOTTOM
    if(wallsMatrix(cellBottom,4) == 0)
       controls = [controls, 5]; 
    end
@@ -132,7 +137,7 @@ if (wallsMatrix(cell,1) == 0 && wallsMatrix(cell,2) == 0)
    cellRight = cell + M;
    cellUp = cell + 1;
    if(wallsMatrix(cellRight,2) == 0 && wallsMatrix(cellUp,1) == 0)
-      controls = [controls, 12]; 
+      controls = [controls, 12];
    end
 end
 %DIAGONALS CONTROLS UP-LEFT
@@ -140,7 +145,7 @@ if (wallsMatrix(cell,2) == 0 && wallsMatrix(cell,3) == 0)
    cellUp = cell + 1;
    cellLeft = cell - M;
    if(wallsMatrix(cellUp,3) == 0 && wallsMatrix(cellLeft,2) == 0)
-      controls = [controls, 4]; 
+      controls = [controls, 4];
    end
 end
 %DIAGONALS CONTROLS LEFT-BOTTOM
@@ -148,7 +153,7 @@ if (wallsMatrix(cell,3) == 0 && wallsMatrix(cell,4) == 0)
    cellLeft = cell - M;
    cellBottom = cell - 1;
    if(wallsMatrix(cellLeft,4) == 0 && wallsMatrix(cellBottom,3) == 0)
-      controls = [controls, 2]; 
+      controls = [controls, 2];
    end
 end
 %DIAGONALS CONTROLS BOTTOM-RIGHT
@@ -156,7 +161,7 @@ if (wallsMatrix(cell,4) == 0 && wallsMatrix(cell,1) == 0)
    cellBottom = cell - 1;
    cellRight = cell + M;
    if(wallsMatrix(cellBottom,1) == 0 && wallsMatrix(cellRight,4) == 0)
-      controls = [controls, 10]; 
+      controls = [controls, 10];
    end
 end
 end
@@ -168,10 +173,10 @@ end
 %           A (1 x 2) matrix containing the width and the height of the
 %           maze in number of cells.
 %
-%   	walls:
-%          	A (2 x 2K) matrix containing the K wall segments, where the start
-%        	and end point of the k-th segment are stored in column 2k-1
-%         	and 2k, respectively.
+%     walls:
+%           A (2 x 2K) matrix containing the K wall segments, where the start
+%         and end point of the k-th segment are stored in column 2k-1
+%           and 2k, respectively.
 %
 %   Output arguments:
 %
