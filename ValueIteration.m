@@ -30,7 +30,37 @@ function [ J_opt, u_opt_ind ] = ValueIteration( P, G )
 %       	A (1 x MN) matrix containing the indices of the optimal control
 %       	inputs for each element of the state space.
 
-% put your code here
 
+% Convergence tolerance (stop if ||J_k+1 - J_k|| < conv_tol)
+conv_tol = 1e-4;
+
+% Maximum number of iterations allowed
+max_it = 1e4;
+
+% Define sizes for convenience
+MN = size(P,1);
+L  = size(P,3);
+
+% Initial guess for u
+u = zeros(MN,1); 
+
+J   = zeros(MN,1);
+Jp1 = 10*ones(MN,1); % Silly initial guess (improve!)
+
+it = 0;
+while norm(Jp1-J) > conv_tol && it < max_it
+
+	it = it + 1
+	J = Jp1;
+	
+	% This is the exact translation of the formula
+	%
+	% J_k+1(i) = min ( g(i,u) + sum p_ij(u) J_k(j) )
+	%
+	for i = 1:MN
+		[Jp1(i),u(i)] = min(G(i,:) + sum(squeeze(P(i,:,:)) .* repmat(J,1,L)));
+	end
 end
 
+J_opt = Jp1';
+u_opt_ind = u';
