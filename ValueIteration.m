@@ -60,6 +60,7 @@ while norm(Jp1-J) > conv_tol && it < max_it
 	for i = 1:MN
 		[Jp1(i),u(i)] = min(G(i,:) + sum(squeeze(P(i,:,:)) .* repmat(J,1,L)));
 	end
+	
 end
 
 J_opt = Jp1';
