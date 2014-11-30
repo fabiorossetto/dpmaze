@@ -50,7 +50,7 @@ Jp1 = 10*ones(MN,1); % Silly initial guess (improve!)
 it = 0;
 while norm(Jp1-J) > conv_tol && it < max_it
 
-	it = it + 1
+	it = it + 1;
 	J = Jp1;
 	
 	% This is the exact translation of the formula
