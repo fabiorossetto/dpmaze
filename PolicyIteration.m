@@ -30,7 +30,59 @@ function [ J_opt, u_opt_ind ] = PolicyIteration( P, G )
 %       	A (1 x MN) matrix containing the indices of the optimal control
 %       	inputs for each element of the state space.
 
-% put your code here
+% Convergence tolerance (stop if ||J_k+1 - J_k|| < conv_tol)
+conv_tol = 1e-4;
 
+% Maximum number of iterations allowed
+max_it = 1e4;
+
+% Define sizes for convenience
+MN = size(P,1);
+L  = size(P,3);
+
+% Initial guess for mu. Greedy strategy: choose the locally cheaper control
+mu = 7*ones(MN-1,1); % min(G,[],2);
+mu_m1 = 10*ones(MN-1,1); 
+
+[t,~] = find(G == 0,1); % Terminal state
+
+Pmt = P([1:t-1 , t+1:end],[1:t-1 , t+1:end],:);
+Gmt = G([1:t-1 , t+1:end],:);
+
+it = 0;
+while norm(mu_m1-mu) > conv_tol && it < max_it
+
+	it = it + 1
+	mu_m1 = mu;
+	
+	% Solve linear system
+	J = (eye(MN-1)-prob(Pmt,mu,t)) \ cost(Gmt,mu,t);
+	
+	% Improve
+	for i = 1:MN-1
+		[~,mu(i)] = min(Gmt(i,:) + sum(squeeze(Pmt(i,:,:)) .* repmat(J,1,L)));
+	end
 end
 
+J_opt = [J(1:t-1) ; 0 ; J(t:end)]';
+u_opt_ind = [mu(1:t-1) ; 7 ; mu(t:end)]'; %TODO remove 7
+end
+
+function Pmu = prob(P,mu,t)
+MNm1 = length(mu);
+
+Pmu = zeros(MNm1);
+for i = 1:MNm1;
+	for j = 1:MNm1;
+		Pmu(i,j) = P(i,j,mu(i));
+	end
+end
+end
+
+function Gmu = cost(G,mu,t)
+MNm1 = length(mu);
+Gmu = zeros(MNm1,1);
+for i = 1:MNm1
+	Gmu(i) = G(i,mu(i));
+end
+end
