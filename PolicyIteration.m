@@ -52,11 +52,11 @@ Gmt = G([1:t-1 , t+1:end],:);
 it = 0;
 while norm(mu_m1-mu) > conv_tol && it < max_it
 
-	it = it + 1
+	it = it + 1;
 	mu_m1 = mu;
 	
 	% Solve linear system
-	J = (eye(MN-1)-prob(Pmt,mu,t)) \ cost(Gmt,mu,t);
+	J = (eye(MN-1)-prob(Pmt,mu)) \ cost(Gmt,mu);
 	
 	% Improve
 	for i = 1:MN-1
@@ -68,7 +68,7 @@ J_opt = [J(1:t-1) ; 0 ; J(t:end)]';
 u_opt_ind = [mu(1:t-1) ; 7 ; mu(t:end)]'; %TODO remove 7
 end
 
-function Pmu = prob(P,mu,t)
+function Pmu = prob(P,mu)
 MNm1 = length(mu);
 
 Pmu = zeros(MNm1);
@@ -79,7 +79,7 @@ for i = 1:MNm1;
 end
 end
 
-function Gmu = cost(G,mu,t)
+function Gmu = cost(G,mu)
 MNm1 = length(mu);
 Gmu = zeros(MNm1,1);
 for i = 1:MNm1

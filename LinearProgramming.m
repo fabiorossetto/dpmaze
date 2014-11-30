@@ -51,7 +51,7 @@ for i = 1:MN-1
 end
 
 J_opt = [J(1:t-1) ; 0 ; J(t:end)]';
-u_opt_ind = [u(1:t-1) ; 7 ; u(t:end)]'; %TODO remove 7
+u_opt_ind = [u(1:t-1) , 7 , u(t:end)]; %TODO remove 7
 
 end
 

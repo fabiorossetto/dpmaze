@@ -84,8 +84,8 @@ G = ComputeStageCostsI( stateSpace, controlSpace, disturbanceSpace, ...
 
 %% solve stochastic shortest path problem
 [ J_opt_vi, u_opt_ind_vi ] = ValueIteration( P, G );
-% [ J_opt_pi, u_opt_ind_pi ] = PolicyIteration( P, G );
-% [ J_opt_lp, u_opt_ind_lp ] = LinearProgramming( P, G );
+[ J_opt_pi, u_opt_ind_pi ] = PolicyIteration( P, G );
+[ J_opt_lp, u_opt_ind_lp ] = LinearProgramming( P, G );
 % Here we solve the stochastic shortest path problem by Value Iteration,
 % Policy Iteration, and Linear Programming.
 
