@@ -56,7 +56,7 @@ P = zeros(MN,MN,L);
 %create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 for cell = 1:MN
-    if(cell == (targetCell(2)-1)*M +targetCell(1)) %if cell is target
+    if(cell == (targetCell(1)-1)*M +targetCell(2)) %if cell is target
        %only control aviable:STAY 
        P(cell,cell,7) = 1;
     else
