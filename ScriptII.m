@@ -34,9 +34,9 @@ c_r = 3;
 % as additional penalty.
 
 %% define problem size and generate maze
-shouldGenerateMaze = false;
+shouldGenerateMaze = true;
 if shouldGenerateMaze
-	mazeSize = [ 10, 10 ];
+	mazeSize = [ 10, 15 ];
 	[ walls, targetCell, holes, resetCell ] = GenerateMaze( mazeSize( 1 ), ...
         mazeSize( 2 ), true );
     % This generates a new random maze.
@@ -62,7 +62,7 @@ load( 'disturbanceSpace.mat' );
 stateSpace = [];
 for i = 1 : mazeSize( 1 )
     for j = 1 : mazeSize( 2 )
-        index = ( i - 1 ) * mazeSize( 1 ) + j;
+        index = ( i - 1 ) * mazeSize( 2 ) + j;
         stateSpace( index, : ) = [ i, j ];
     end
 end

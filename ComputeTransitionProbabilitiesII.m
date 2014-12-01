@@ -57,7 +57,7 @@ function P = ComputeTransitionProbabilitiesII( stateSpace, controlSpace, disturb
 
 %inizialize some useful dimension
 MN = size(stateSpace,1);
-M = mazeSize(1);
+M = mazeSize(2);
 L = size(controlSpace,1);
 P = zeros(MN,MN,L);
 holeSpace = zeros(1,size(holes,2));
@@ -263,8 +263,8 @@ end
 %                        [RIGHT,UP,LEFT,BOTTOM]
 
 function W = GenerateWallsMatrix(mazeSize, walls)
-M = mazeSize(1);
-N = mazeSize(2);
+M = mazeSize(2);
+N = mazeSize(1);
 K = size(walls,2)/2;
 W = zeros(M*N,4);
 for i = 1:M
