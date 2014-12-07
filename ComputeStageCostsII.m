@@ -66,7 +66,7 @@ function G = ComputeStageCostsII( stateSpace, controlSpace, disturbanceSpace, ma
 MN = size(stateSpace,1);
 M = mazeSize(2);
 L = size(controlSpace,1);
-G = Inf(MN,L);
+G = MN * ones(MN,L); % TODO explain why not Inf!
 
 %create the matrix of the HOLES
 holeSpace = zeros(1,size(holes,2));
