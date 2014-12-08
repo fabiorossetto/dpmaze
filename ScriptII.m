@@ -34,14 +34,17 @@ c_r = 3;
 % as additional penalty.
 
 %% define problem size and generate maze
-shouldGenerateMaze = true;
+shouldGenerateMaze = false;
 if shouldGenerateMaze
 	mazeSize = [ 10, 10 ];
 	[ walls, targetCell, holes, resetCell ] = GenerateMaze( mazeSize( 1 ), ...
         mazeSize( 2 ), true );
     % This generates a new random maze.
+	
+	% TODO line added for debug
+	save 'myGeneratedMazeII.mat' walls targetCell holes resetCell mazeSize
 else
-    load( 'pregeneratedMazeII.mat' );
+    load( 'causing_error_maze.mat' );
     % In order to save time we can just load a pre-generated maze.
 end
 PlotMaze( 1, mazeSize, walls, targetCell, holes, resetCell );
