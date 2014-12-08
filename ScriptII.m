@@ -25,10 +25,10 @@ close all;
 clc;
 
 %% define wall and hole penalty
-c_p = 10;
+c_p = 0;
 % Every time the ball bounces into a wall, we get this number of time steps
 % as penalty.
-c_r = 3;
+c_r = -10;
 % Every time the ball falls into a hole, the ball is set to the reset cell
 % at the beginning of the next stage and we get this number of time steps
 % as additional penalty.

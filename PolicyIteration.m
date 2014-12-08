@@ -70,7 +70,6 @@ end
 
 function Pmu = prob(P,mu)
 MNm1 = length(mu);
-
 Pmu = zeros(MNm1);
 for i = 1:MNm1;
 	for j = 1:MNm1;

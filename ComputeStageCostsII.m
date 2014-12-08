@@ -72,8 +72,11 @@ L = size(controlSpace,1);
 % Hence an arbitrary high value is used instead
 G = 1e3 * MN * ones(MN,L); 
 
+% Pass from coordinates to column-wise index
 resetCell = (resetCell(1) - 1)*M + resetCell(2);
-%create the matrix of the HOLES
+targetCell = (targetCell(1) - 1)*M +targetCell(2);
+
+% Create the matrix of the HOLES
 holeSpace = zeros(1,size(holes,2));
 for i = 1 : size(holes,2)
     holeSpace(i) = (holes(1,i) - 1)*M + holes(2,i);
@@ -91,10 +94,14 @@ for cell = 1:MN
         coords = controlSpace(controls(i),:);
         %apply CONTROL
         cellArrWithCont = cell + coords(1)*M + coords(2);
+        if(cellArrWithCont == targetCell)
+           G(cell,controls(i)) = 1; 
+           continue;
+        end
         %if arrival cell is a HOLE then cost = c_r + 1*prob(stay) 
-        %and set resetCell as arrival cell
         if(ismember(cellArrWithCont,holeSpace))
             G(cell,controls(i)) = c_r + disturbanceSpace(3,3);
+            %and set resetCell as arrival cell
             cellArrWithCont = resetCell;
         else
             %cost STAY
@@ -108,61 +115,62 @@ for cell = 1:MN
         if(wallsCellArrival(3) == 0)
             if(ismember(cellArrWithCont-M,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*c_r;
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*(c_r+1);
             else
                 %if there is nothing
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3);
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*c_p;
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*(c_p+1);
         end
         %cost BOTTOM
         if(wallsCellArrival(4) == 0)
             if(ismember(cellArrWithCont-1,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*c_r; %(find(disturbanceSpace(:,2) == -1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*(c_r+1); %(find(disturbanceSpace(:,2) == -1),3);
             else
                 %if there is nothing
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3);  %(find(disturbanceSpace(:,2) == -1),3);
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*c_p;  %(find(disturbanceSpace(:,2) == -1),3);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*(c_p+1);  %(find(disturbanceSpace(:,2) == -1),3);
         end
         %cost UP
         if(wallsCellArrival(2) == 0)
             if(ismember(cellArrWithCont+1,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_r;  %(find(disturbanceSpace(:,2) == 1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*(c_r+1);  %(find(disturbanceSpace(:,2) == 1),3);
             else
                 %if there is nothing
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3);  %(find(disturbanceSpace(:,2) == 1),3);
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_p;  %(find(disturbanceSpace(:,2) == 1),3);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*(c_p+1);  %(find(disturbanceSpace(:,2) == 1),3);
         end
         %cost RIGHT
         if(wallsCellArrival(1) == 0)
             if(ismember(cellArrWithCont+M,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_r;  %(find(disturbanceSpace(:,1) == 1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*(c_r+1);  %(find(disturbanceSpace(:,1) == 1),3);
             else
                 %if there is nothing
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3);  %(find(disturbanceSpace(:,1) == 1),3);
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_p;  %(find(disturbanceSpace(:,1) == 1),3);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*(c_p+1);  %(find(disturbanceSpace(:,1) == 1),3);
         end
         
     end
 end
 
-%if cell is target the cost of all controls is 0
-G((targetCell(1)-1)*M +targetCell(2),:) = zeros(1,L);
-
+% If the cell is the target the cost of all controls is 0. This allow to 
+% uniquely identify the target cell if only the matrix G is given. This is
+% used in ValueIteration/PolicyIteration/LinearProgramming
+G(targetCell,:) = zeros(1,L);
 end
 
 function controls = applicableControls(cell,wallsMatrix,M,holeSpace)

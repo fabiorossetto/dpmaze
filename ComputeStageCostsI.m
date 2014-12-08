@@ -55,6 +55,9 @@ L = size(controlSpace,1);
 % Hence an arbitrary high value is used instead
 G = 1e3 * MN * ones(MN,L); 
 
+% Pass from coordinates to column-wise index
+targetCell = (targetCell(1) - 1)*M +targetCell(2);
+
 %create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 
@@ -70,7 +73,7 @@ end
 % If the cell is the target the cost of all controls is 0. This allow to 
 % uniquely identify the target cell if only the matrix G is given. This is
 % used in ValueIteration/PolicyIteration/LinearProgramming
-G((targetCell(1)-1)*M +targetCell(2),:) = zeros(1,L);
+G(targetCell,:) = zeros(1,L);
 end
 
 function controls = applicableControls(cell,wallsMatrix,M)
