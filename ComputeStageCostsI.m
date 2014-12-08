@@ -50,6 +50,7 @@ MN = size(stateSpace,1);
 M = mazeSize(2);
 L = size(controlSpace,1);
 G = MN * ones(MN,L); % TODO explain why this choice
+targetCell = (targetCell(1) - 1)*M +targetCell(2);
 %create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 for cell = 1:MN
@@ -60,7 +61,7 @@ for cell = 1:MN
     end
 end
 %if cell is target the cost of all controls is 0
-G((targetCell(1)-1)*M +targetCell(2),:) = zeros(1,L);
+G(targetCell,:) = zeros(1,L);
 end
 
 %% FUNCTION TO FIND APPLICABLE CONTROLS FOR ONE SPECIFIC CELL
@@ -70,7 +71,7 @@ end
 %           An integer containing the index of the cell that we are 
 %           analyzing
 %
-%     wallsMatrix:
+%       wallsMatrix:
 %           A (MN x 4) matrix containing, foreach cell, 4 boolean values 
 %          that express foreach wall of the cell if it is active or not, 
 %          in particular:

@@ -25,10 +25,10 @@ close all;
 clc;
 
 %% define wall and hole penalty
-c_p = 10;
+c_p = 0;
 % Every time the ball bounces into a wall, we get this number of time steps
 % as penalty.
-c_r = 3;
+c_r = -10;
 % Every time the ball falls into a hole, the ball is set to the reset cell
 % at the beginning of the next stage and we get this number of time steps
 % as additional penalty.
@@ -36,7 +36,7 @@ c_r = 3;
 %% define problem size and generate maze
 shouldGenerateMaze = false;
 if shouldGenerateMaze
-	mazeSize = [ 10, 15 ];
+	mazeSize = [ 10, 10 ];
 	[ walls, targetCell, holes, resetCell ] = GenerateMaze( mazeSize( 1 ), ...
         mazeSize( 2 ), true );
     % This generates a new random maze.
@@ -44,7 +44,7 @@ if shouldGenerateMaze
 	% TODO line added for debug
 	save 'myGeneratedMazeII.mat' walls targetCell holes resetCell mazeSize
 else
-    load( 'causing_error_maze.mat' );
+    load( 'myGeneratedMazeII.mat' );
     % In order to save time we can just load a pre-generated maze.
 end
 PlotMaze( 1, mazeSize, walls, targetCell, holes, resetCell );
