@@ -52,7 +52,7 @@ Gmt = G([1:t-1 , t+1:end],:);
 it = 0;
 while norm(mu_m1-mu) > conv_tol && it < max_it
 
-	it = it + 1;
+	it = it + 1
 	mu_m1 = mu;
 	
 	% Solve linear system

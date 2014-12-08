@@ -45,7 +45,7 @@ L  = size(P,3);
 u = zeros(MN,1); 
 
 J   = zeros(MN,1);
-Jp1 = 1000*ones(MN,1); % Silly initial guess (improve!)
+Jp1 = 10000*ones(MN,1); % Silly initial guess (improve!)
 
 it = 0;
 while norm(Jp1-J) > conv_tol && it < max_it

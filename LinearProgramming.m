@@ -45,7 +45,7 @@ b = Gmt(:);
 
 J = linprog(f,A,b);
 
-u = zeros(MN-1);
+u = zeros(1,MN-1);
 for i = 1:MN-1
 	[~,u(i)] = min(Gmt(i,:) + sum(squeeze(Pmt(i,:,:)) .* repmat(J,1,L)));
 end

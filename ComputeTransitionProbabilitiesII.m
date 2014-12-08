@@ -60,12 +60,17 @@ MN = size(stateSpace,1);
 M = mazeSize(2);
 L = size(controlSpace,1);
 P = zeros(MN,MN,L);
+
+resetCell = (resetCell(1) - 1)*M + resetCell(2);
+%create the matrix of the HOLES
 holeSpace = zeros(1,size(holes,2));
 for i = 1 : size(holes,2)
    holeSpace(i) = (holes(1,i) - 1)*M + holes(2,i);
 end
+
 %create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
+
 for cell = 1:MN
     if(cell == (targetCell(1)-1)*M +targetCell(2)) %if cell is target
         %only control aviable:STAY
