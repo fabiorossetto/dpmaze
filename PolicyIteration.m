@@ -34,16 +34,19 @@ function [ J_opt, u_opt_ind ] = PolicyIteration( P, G )
 conv_tol = 1e-4;
 
 % Maximum number of iterations allowed
-max_it = 1e4;
+max_it = 800;
 
 % Define sizes for convenience
 MN = size(P,1);
 L  = size(P,3);
 
 % Initial guess for mu. Greedy strategy: choose the locally cheaper control
-mu = 7*ones(MN-1,1); % min(G,[],2);
+mu = 7*ones(MN-1,1); % min(G,[],2); TODO
 mu_m1 = realmax*ones(MN-1,1); 
 
+% Find the terminal state (the only one with zero costs, see
+% ComputeStageCosts) and remove it from the vector of costs and the matrix
+% of probabilities.
 [t,~] = find(G == 0,1); % Terminal state
 
 Pmt = P([1:t-1 , t+1:end],[1:t-1 , t+1:end],:);
@@ -64,10 +67,14 @@ while norm(mu_m1-mu) > conv_tol && it < max_it
 	end
 end
 
+% output matrix must be 1 x MN. We need to add a dummy value for the
+% terminal state to comply with this
 J_opt = [J(1:t-1) ; 0 ; J(t:end)]';
-u_opt_ind = [mu(1:t-1) ; 7 ; mu(t:end)]'; %TODO remove 7
+u_opt_ind = [mu(1:t-1) ; 7 ; mu(t:end)]'; % <-- 7 is the stay control, but any other value would work anyway
 end
 
+% Return the transition probabilities associated with a particular control
+% policy
 function Pmu = prob(P,mu)
 MNm1 = length(mu);
 Pmu = zeros(MNm1);
@@ -78,6 +85,7 @@ for i = 1:MNm1;
 end
 end
 
+% Return the costs of a particular control policy
 function Gmu = cost(G,mu)
 MNm1 = length(mu);
 Gmu = zeros(MNm1,1);

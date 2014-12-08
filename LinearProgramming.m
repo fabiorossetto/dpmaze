@@ -34,28 +34,36 @@ function [ J_opt, u_opt_ind ] = LinearProgramming( P, G )
 MN = size(P,1);
 L  = size(P,3);
 
+% Find the terminal state (the only one with zero costs, see
+% ComputeStageCosts) and remove it from the vector of costs and the matrix
+% of probabilities.
 [t,~] = find(G == 0,1); % Terminal state
 
 Pmt = P([1:t-1 , t+1:end],[1:t-1 , t+1:end],:);
 Gmt = G([1:t-1 , t+1:end],:);
 
+% -1 to transform the minimization of "linprog" into a maximization
 f = -1 * ones(MN-1,1);
+% TODO spiegare
 A = repmat(eye(MN-1),L,1) - reshape(permute(Pmt,[1,3,2]),(MN-1)*L,MN-1);
 b = Gmt(:);
-b(b == Inf) = 10000;
 
-assert( all(~isnan(A(:))) );
-assert( all(~isnan(b)) );
-
+% Solve the linear programming
 J = linprog(f,A,b);
 
+% Given the costs to go, find the optimal policy
+%
+% u* = argmin G + sum_j P_ij J*
+%
 u = zeros(1,MN-1);
 for i = 1:MN-1
 	[~,u(i)] = min(Gmt(i,:) + sum(squeeze(Pmt(i,:,:)) .* repmat(J,1,L)));
 end
 
+% output matrix must be 1 x MN. We need to add a dummy value for the
+% terminal state to comply with this
 J_opt = [J(1:t-1) ; 0 ; J(t:end)]';
-u_opt_ind = [u(1:t-1) , 7 , u(t:end)]; %TODO remove 7
+u_opt_ind = [u(1:t-1) , 7 , u(t:end)]'; % <-- 7 is the stay control, but any other value would work anyway
 
 end
 
