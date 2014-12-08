@@ -42,7 +42,7 @@ L  = size(P,3);
 
 % Initial guess for mu. Greedy strategy: choose the locally cheaper control
 mu = 7*ones(MN-1,1); % min(G,[],2);
-mu_m1 = 10*ones(MN-1,1); 
+mu_m1 = realmax*ones(MN-1,1); 
 
 [t,~] = find(G == 0,1); % Terminal state
 
@@ -57,7 +57,7 @@ while norm(mu_m1-mu) > conv_tol && it < max_it
 	
 	% Solve linear system
 	J = (eye(MN-1)-prob(Pmt,mu)) \ cost(Gmt,mu);
-	
+		
 	% Improve
 	for i = 1:MN-1
 		[~,mu(i)] = min(Gmt(i,:) + sum(squeeze(Pmt(i,:,:)) .* repmat(J,1,L)));

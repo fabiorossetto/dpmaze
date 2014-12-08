@@ -49,7 +49,7 @@ function G = ComputeStageCostsI( stateSpace, controlSpace, disturbanceSpace, maz
 MN = size(stateSpace,1);
 M = mazeSize(2);
 L = size(controlSpace,1);
-G = Inf(MN,L);
+G = MN * ones(MN,L); % TODO explain why this choice
 %create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 for cell = 1:MN

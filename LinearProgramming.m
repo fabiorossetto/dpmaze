@@ -42,6 +42,10 @@ Gmt = G([1:t-1 , t+1:end],:);
 f = -1 * ones(MN-1,1);
 A = repmat(eye(MN-1),L,1) - reshape(permute(Pmt,[1,3,2]),(MN-1)*L,MN-1);
 b = Gmt(:);
+b(b == Inf) = 10000;
+
+assert( all(~isnan(A(:))) );
+assert( all(~isnan(b)) );
 
 J = linprog(f,A,b);
 
