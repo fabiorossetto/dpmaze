@@ -94,11 +94,12 @@ for cell = 1:MN
         coords = controlSpace(controls(i),:);
         %apply CONTROL
         cellArrWithCont = cell + coords(1)*M + coords(2);
+        %check if the arrivalCell is the targetCell
         if(cellArrWithCont == targetCell)
            G(cell,controls(i)) = 1; 
            continue;
         end
-        %if arrival cell is a HOLE then cost = c_r + 1*prob(stay) 
+        %check if arrival cell is a HOLE then cost = c_r + 1*prob(stay) 
         if(ismember(cellArrWithCont,holeSpace))
             G(cell,controls(i)) = c_r + disturbanceSpace(3,3);
             %and set resetCell as arrival cell
