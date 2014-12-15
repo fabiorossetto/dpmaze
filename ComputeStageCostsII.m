@@ -62,7 +62,7 @@ function G = ComputeStageCostsII( stateSpace, controlSpace, disturbanceSpace, ma
 %           G(i, l) represents the cost if we are in state i and apply
 %           control input l.
 
-%initialize some useful dimension
+% Initialize some useful dimension
 MN = size(stateSpace,1);
 M = mazeSize(2);
 L = size(controlSpace,1);
@@ -82,86 +82,101 @@ for i = 1 : size(holes,2)
     holeSpace(i) = (holes(1,i) - 1)*M + holes(2,i);
 end
 
-%create the matrix of the WALLS
+% Create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 
-% TODO explain the rationale behind the assignment of the costs
+% For each cell we find all the applicable controls considering the
+%   positions of walls and holes. 
+% For each control we find the arrival cell corresponding to this.
+% If the arrival cell is the target we are done the cost is only one step.
+% Otherwise we have to calculate the cost of this control:
+%   - a default cost of 1 for one step
+%   - an additional default cost of c_r if the arrival cell is an hole
+%   - for each wall of the arrival cell we have an additional cost of c_p
+%       multiply by the probability of bumping on this wall due to the
+%       noise
+%   - if the arrival cell is next to an hole there is an additional cost of
+%       c_r multiply by the probability of falling inside the hole due to
+%       the noise
 
 for cell = 1:MN
     %check all APPLICABLE CONTROLS
     controls = applicableControls(cell,wallsMatrix,M,holeSpace);
     for i = 1:size(controls,2)
-        coords = controlSpace(controls(i),:);
+        %control components
+        components = controlSpace(controls(i),:);
         %apply CONTROL
-        cellArrWithCont = cell + coords(1)*M + coords(2);
+        cellArrWithCont = cell + components(1)*M + components(2);
+        %check if the arrivalCell is the targetCell
         if(cellArrWithCont == targetCell)
            G(cell,controls(i)) = 1; 
            continue;
         end
-        %if arrival cell is a HOLE then cost = c_r + 1*prob(stay) 
+        %check if arrival cell is a HOLE then cost = c_r + one_step
         if(ismember(cellArrWithCont,holeSpace))
-            G(cell,controls(i)) = c_r + disturbanceSpace(3,3);
+            G(cell,controls(i)) = c_r + 1;
             %and set resetCell as arrival cell
             cellArrWithCont = resetCell;
         else
-            %cost STAY
-            G(cell,controls(i)) = disturbanceSpace(3,3);
+            %cost one_step
+            G(cell,controls(i)) = 1;
         end
         
         %check if near the arrival cell there are walls or holes
         wallsCellArrival = wallsMatrix(cellArrWithCont,:);
         
-        %cost LEFT
+        % COSTS DUE TO THE NOISE
+        %cost LEFT noise
         if(wallsCellArrival(3) == 0)
             if(ismember(cellArrWithCont-M,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*(c_r+1);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*c_r;
             else
                 %if there is nothing
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3);
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*(c_p+1);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*c_p;
         end
-        %cost BOTTOM
+        %cost BOTTOM noise
         if(wallsCellArrival(4) == 0)
             if(ismember(cellArrWithCont-1,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*(c_r+1); %(find(disturbanceSpace(:,2) == -1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*c_r; 
             else
                 %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3);  %(find(disturbanceSpace(:,2) == -1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3);  
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*(c_p+1);  %(find(disturbanceSpace(:,2) == -1),3);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*c_p; 
         end
-        %cost UP
+        %cost UP noise
         if(wallsCellArrival(2) == 0)
             if(ismember(cellArrWithCont+1,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*(c_r+1);  %(find(disturbanceSpace(:,2) == 1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_r;  
             else
                 %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3);  %(find(disturbanceSpace(:,2) == 1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3);  
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*(c_p+1);  %(find(disturbanceSpace(:,2) == 1),3);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_p;  
         end
-        %cost RIGHT
+        %cost RIGHT noise
         if(wallsCellArrival(1) == 0)
             if(ismember(cellArrWithCont+M,holeSpace))
                 %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*(c_r+1);  %(find(disturbanceSpace(:,1) == 1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_r; 
             else
                 %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3);  %(find(disturbanceSpace(:,1) == 1),3);
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3);  
             end
         else
             %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*(c_p+1);  %(find(disturbanceSpace(:,1) == 1),3);
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_p;  
         end
         
     end

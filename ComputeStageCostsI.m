@@ -58,10 +58,11 @@ G = 1e3 * MN * ones(MN,L);
 % Pass from coordinates to column-wise index
 targetCell = (targetCell(1) - 1)*M +targetCell(2);
 
-%create the matrix of the WALLS
+% Create the matrix of the WALLS
 wallsMatrix = GenerateWallsMatrix(mazeSize, walls);
 
-% The cost of a feasible control is assumed to be one.
+% The cost of a feasible control is assumed to be one corresponding to one
+% step of time spent to apply this control.
 for cell = 1:MN
     %check all APPLICABLE CONTROLS
     controls = applicableControls(cell,wallsMatrix,M);
