@@ -44,8 +44,27 @@ Gmt = G([1:t-1 , t+1:end],:);
 
 % -1 to transform the minimization of "linprog" into a maximization
 f = -1 * ones(MN-1,1);
-% TODO spiegare
-A = repmat(eye(MN-1),L,1) - reshape(permute(Pmt,[1,3,2]),(MN-1)*L,MN-1);
+
+
+% The "A" matrix for the linear programming can be derived as follows:
+%
+% J(i) < g(i,u) + sum_j P_ij(u) J(j) for each i, for each u
+%
+% J(i) - sum_j P_ij(u) J(j) < g(i,u) for each i, for each u
+%
+% This is equivalent to
+%
+% (I - P(u)) J(:) < g(:,u) for each u 										 (1)
+%
+% with "<" acting elementwise.
+%
+% This set of L inequalities can be stated as a single inequality, stacking the 
+% inequalities (1) for each u. To do so, the MN x MN x L tensor P must be reshaped 
+% along the third dimension, to become MNL x MN. This is done permuting the second
+% and third dimension, and then applying the function reshape. 
+% The identity matrix must be repeated L times in the first direction.
+%
+A = repmat(eye(MN-1),L,1) - reshape( permute(Pmt,[1,3,2]) , (MN-1)*L , MN-1);
 b = Gmt(:);
 
 % Solve the linear programming

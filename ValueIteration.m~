@@ -52,12 +52,14 @@ Gmt = G([1:t-1 , t+1:end],:);
 u = zeros(MN-1,1); 
 
 J   = zeros(MN-1,1);
-Jp1 = 10000*ones(MN-1,1); % Silly initial guess (TODO improve!)
+
+% Initial guess. We believe that a good choice for the initial guess cou
+Jp1 = ones(MN-1,1);
 
 it = 0;
 while norm(Jp1-J) > conv_tol && it < max_it
 
-	it = it + 1;
+	it = it + 1
 	J = Jp1;
 	
 	% This is the exact translation of the formula

@@ -52,7 +52,14 @@ Gmt = G([1:t-1 , t+1:end],:);
 u = zeros(MN-1,1); 
 
 J   = zeros(MN-1,1);
-Jp1 = 10000*ones(MN-1,1); % Silly initial guess (TODO improve!)
+
+% Initial guess. A good choice for the initial guess could
+% be the L_1 distance of a cell from the target cell. Unfortunately, inside
+% this method it is impossible to know the size of the maze and therefore
+% the real cell coordinates without passing additional arguments to the function.
+% Hence, there are no sufficient elements to try a better guess. Experimentally we
+% observed faster convergence for small initial guess.
+Jp1 = ones(MN-1,1);
 
 it = 0;
 while norm(Jp1-J) > conv_tol && it < max_it
