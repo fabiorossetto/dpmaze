@@ -112,8 +112,9 @@ for cell = 1:MN
            G(cell,controls(i)) = 1; 
            continue;
         end
-        %check if arrival cell is a HOLE then cost = c_r + one_step
+        %check if arrival cell is a HOLE then
         if(ismember(cellArrWithCont,holeSpace))
+            %cost = c_r + one_step
             G(cell,controls(i)) = c_r + 1;
             %and set resetCell as arrival cell
             cellArrWithCont = resetCell;
@@ -126,14 +127,31 @@ for cell = 1:MN
         wallsCellArrival = wallsMatrix(cellArrWithCont,:);
         
         % COSTS DUE TO THE NOISE
+        %cost RIGHT noise
+        if(wallsCellArrival(1) == 0)
+            %if there is a hole
+            if(ismember(cellArrWithCont+M,holeSpace))
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_r; 
+            end
+        else
+            %if there is a wall
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_p;  
+        end
+        %cost UP noise
+        if(wallsCellArrival(2) == 0)
+           %if there is a hole
+           if(ismember(cellArrWithCont+1,holeSpace))
+                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_r;  
+            end
+        else
+            %if there is a wall
+            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_p;  
+        end
         %cost LEFT noise
         if(wallsCellArrival(3) == 0)
+            %if there is a hole
             if(ismember(cellArrWithCont-M,holeSpace))
-                %if there is a hole
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3)*c_r;
-            else
-                %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(1,3);
             end
         else
             %if there is a wall
@@ -141,44 +159,14 @@ for cell = 1:MN
         end
         %cost BOTTOM noise
         if(wallsCellArrival(4) == 0)
+            %if there is a hole
             if(ismember(cellArrWithCont-1,holeSpace))
-                %if there is a hole
                 G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*c_r; 
-            else
-                %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3);  
             end
         else
             %if there is a wall
             G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(2,3)*c_p; 
         end
-        %cost UP noise
-        if(wallsCellArrival(2) == 0)
-            if(ismember(cellArrWithCont+1,holeSpace))
-                %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_r;  
-            else
-                %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3);  
-            end
-        else
-            %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(4,3)*c_p;  
-        end
-        %cost RIGHT noise
-        if(wallsCellArrival(1) == 0)
-            if(ismember(cellArrWithCont+M,holeSpace))
-                %if there is a hole
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_r; 
-            else
-                %if there is nothing
-                G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3);  
-            end
-        else
-            %if there is a wall
-            G(cell,controls(i)) = G(cell,controls(i)) + disturbanceSpace(5,3)*c_p;  
-        end
-        
     end
 end
 
