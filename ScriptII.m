@@ -41,7 +41,7 @@ if shouldGenerateMaze
         mazeSize( 2 ), true );
     % This generates a new random maze.
 	
-	% TODO line added for debug
+	% Line added for debug
 	save 'myGeneratedMazeII.mat' walls targetCell holes resetCell mazeSize
 else
     load( 'myGeneratedMazeII.mat' );

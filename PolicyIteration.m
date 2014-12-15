@@ -41,7 +41,7 @@ MN = size(P,1);
 L  = size(P,3);
 
 % Initial guess for mu. Greedy strategy: choose the locally cheaper control
-mu = 7*ones(MN-1,1); % min(G,[],2); TODO
+mu = min(G,[],2);
 mu_m1 = realmax*ones(MN-1,1); 
 
 % Find the terminal state (the only one with zero costs, see
@@ -51,6 +51,8 @@ mu_m1 = realmax*ones(MN-1,1);
 
 Pmt = P([1:t-1 , t+1:end],[1:t-1 , t+1:end],:);
 Gmt = G([1:t-1 , t+1:end],:);
+
+mu = mu([1:t-1 , t+1:end]);
 
 it = 0;
 while norm(mu_m1-mu) > conv_tol && it < max_it
