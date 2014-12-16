@@ -1,4 +1,4 @@
-% ScriptI.m
+% ScriptII.m
 %
 % Matlab script that calls all the functions for computing the optimal cost
 % and policy of the given problem.
@@ -24,18 +24,30 @@
 close all;
 %clc;
 
+%% define wall and hole penalty
+c_p = 3;
+% Every time the ball bounces into a wall, we get this number of time steps
+% as penalty.
+c_r = 10;
+% Every time the ball falls into a hole, the ball is set to the reset cell
+% at the beginning of the next stage and we get this number of time steps
+% as additional penalty.
+
 %% define problem size and generate maze
 shouldGenerateMaze = true;
 if shouldGenerateMaze
-	mazeSize = [floor(rand*12 + 3) , floor(rand*12 + 3) ];
-	[ walls, targetCell, ~, ~ ] = GenerateMaze( mazeSize( 1 ), ...
-        mazeSize( 2 ), false );
+	mazeSize = [ floor(rand*12 + 3) , floor(rand*12 + 3) ];
+	[ walls, targetCell, holes, resetCell ] = GenerateMaze( mazeSize( 1 ), ...
+        mazeSize( 2 ), true );
     % This generates a new random maze.
+	
+	% Line added for debug
+	save 'myGeneratedMazeII.mat' walls targetCell holes resetCell mazeSize
 else
-    load( 'pregeneratedMazeI.mat' );
+    load( 'myGeneratedMazeII.mat' );
     % In order to save time we can just load a pre-generated maze.
 end
-PlotMaze( 1, mazeSize, walls, targetCell, [], [] );
+PlotMaze( 1, mazeSize, walls, targetCell, holes, resetCell );
 
 %% load control and disturbance space
 load( 'controlSpace.mat' );
@@ -59,11 +71,12 @@ for i = 1 : mazeSize( 1 )
 end
 % This generates a (MN x 2) matrix 'stateSpace', where each row represents
 % an element of the state space. Note that the state space also contains
-% the target cell, in order to simplify state indexing.
+% the target cell, the reset cell and all the holes in order to simplify
+% state indexing.
 
 %% compute transition probabilities
-P = ComputeTransitionProbabilitiesI( stateSpace, controlSpace, ...
-    disturbanceSpace, mazeSize, walls, targetCell );
+P = ComputeTransitionProbabilitiesII( stateSpace, controlSpace, ...
+    disturbanceSpace, mazeSize, walls, targetCell, holes, resetCell );
 % This computes the transition probabilities between all states in the
 % state space for all attainable control inputs.
 % The transition probability matrix has the dimension (MN x MN x L), i.e.
@@ -73,8 +86,8 @@ P = ComputeTransitionProbabilitiesI( stateSpace, controlSpace, ...
 % transition  probabilities to all other states j can be set to zero.
 
 %% compute stage costs
-G = ComputeStageCostsI( stateSpace, controlSpace, disturbanceSpace, ...
-    mazeSize, walls, targetCell );
+G = ComputeStageCostsII( stateSpace, controlSpace, disturbanceSpace, ...
+    mazeSize, walls, targetCell, holes, resetCell, c_p, c_r );
 % This computes the stage costs for all states in the state space for all
 % attainable control inputs.
 % The stage cost matrix has the dimension (MN x L), i.e. the entry G(i, l)
@@ -90,17 +103,17 @@ G = ComputeStageCostsI( stateSpace, controlSpace, disturbanceSpace, ...
 % Policy Iteration, and Linear Programming.
 
 %% plot results
-figH = PlotMaze( 2, mazeSize, walls, targetCell, [], [], stateSpace, ...
+figH = PlotMaze( 2, mazeSize, walls, targetCell, holes, resetCell, stateSpace, ...
     controlSpace, J_opt_vi, u_opt_ind_vi );
 figure(figH);
 title(strcat('Value iteration (width=', num2str(mazeSize(1)), ', height=', num2str(mazeSize(2)), ')'));
 
-figH = PlotMaze( 3, mazeSize, walls, targetCell, [], [], stateSpace, ...
+figH = PlotMaze( 3, mazeSize, walls, targetCell, holes, resetCell, stateSpace, ...
     controlSpace, J_opt_pi, u_opt_ind_pi );
 figure(figH);
 title(strcat('Policy iteration (width=', num2str(mazeSize(1)), ', height=', num2str(mazeSize(2)), ')'));
 
-figH = PlotMaze( 4, mazeSize, walls, targetCell, [], [], stateSpace, ...
+figH = PlotMaze( 4, mazeSize, walls, targetCell, holes, resetCell, stateSpace, ...
     controlSpace, J_opt_lp, u_opt_ind_lp );
 figure(figH);
 title(strcat('Linear programming (width=', num2str(mazeSize(1)), ', height=', num2str(mazeSize(2)), ')'));

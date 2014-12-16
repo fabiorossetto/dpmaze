@@ -20,23 +20,23 @@
 %
 
 %% clear workspace and command window
-clear all;
+%clear all;
 close all;
-clc;
+%clc;
 
 %% define wall and hole penalty
 c_p = 3;
 % Every time the ball bounces into a wall, we get this number of time steps
 % as penalty.
-c_r = 10;
+c_r = 5;
 % Every time the ball falls into a hole, the ball is set to the reset cell
 % at the beginning of the next stage and we get this number of time steps
 % as additional penalty.
 
 %% define problem size and generate maze
-shouldGenerateMaze = true;
+shouldGenerateMaze = false;
 if shouldGenerateMaze
-	mazeSize = [ 10, 15 ];
+	mazeSize = [ floor(rand*11 + 4) , floor(rand*11 + 4) ];
 	[ walls, targetCell, holes, resetCell ] = GenerateMaze( mazeSize( 1 ), ...
         mazeSize( 2 ), true );
     % This generates a new random maze.
