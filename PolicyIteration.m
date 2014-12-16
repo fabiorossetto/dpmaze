@@ -40,6 +40,15 @@ max_it = 800;
 MN = size(P,1);
 L  = size(P,3);
 
+% Find the terminal state (the only one with zero costs, see
+% ComputeStageCosts) and remove it from the vector of costs and the matrix
+% of probabilities.
+[t,~] = find(G == 0,1); % Terminal state
+
+Pmt = P([1:t-1 , t+1:end],[1:t-1 , t+1:end],:);
+Gmt = G([1:t-1 , t+1:end],:);
+
+
 % Initial guess for mu. Greedy strategy: choose the locally cheaper control
 % as initial guess.
 %
@@ -48,16 +57,11 @@ L  = size(P,3);
 % Unfortunately this cause the matrix (eye(MN-1)-prob(Pmt,mu)) to be
 % singular up to machine precision. We therefore preferred to go with a
 % dummy initial guess
-mu = ones(MN-1,1);
+
+% Initial guess for mu. The matrix I-Pmt is invertible only if there is a
+% cell that can reach the target 
+mu    = repmat(find(any(squeeze(P([1:t-1 , t+1:end],t,:)) ~= 0, 1),1,'first'),MN-1,1);
 mu_m1 = realmax*ones(MN-1,1); 
-
-% Find the terminal state (the only one with zero costs, see
-% ComputeStageCosts) and remove it from the vector of costs and the matrix
-% of probabilities.
-[t,~] = find(G == 0,1); % Terminal state
-
-Pmt = P([1:t-1 , t+1:end],[1:t-1 , t+1:end],:);
-Gmt = G([1:t-1 , t+1:end],:);
 
 it = 0;
 while norm(mu_m1-mu) > conv_tol && it < max_it
